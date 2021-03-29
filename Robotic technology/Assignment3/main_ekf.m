@@ -216,9 +216,9 @@ end
 function err = correct_angle_err(z,zbar)
 dum = z-zbar;
 if (dum > pi)
-    err = 2*pi-dum;
+    err = dum - 2*pi;
 elseif (dum < -pi)
-    err = 2*pi+dum;
+    err = dum + 2*pi;
 else
     err = dum; 
 end

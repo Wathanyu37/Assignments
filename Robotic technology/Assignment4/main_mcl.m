@@ -1,10 +1,13 @@
+%% ===================================================================== %%
+
 % Monte Carlo Localization using particle filter
 % Feature-based
 % By Theeraphong Wongratapahisan
 % Feb 2021
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clear;
+%% ===================================================================== %%
+
+clear; close; clc
 
 % set parameters
 sensor_range = 5;       % sensor range
@@ -23,6 +26,7 @@ r2d = 1/d2r;
 % create landmarks randomly but assumed known
 xmin = -5; xmax = 5;
 ymin = -5; ymax = 5;
+
 for i=1:num_landmark
     landmark(1,i) = rand*(xmax-xmin)+xmin;
     landmark(2,i) = rand*(ymax-ymin)+ymin;
@@ -34,8 +38,6 @@ x = dum*(rand-0.5);
 y = dum*(rand-0.5);
 th = pi*(rand-0.5);
 X = [x;y;th];
-
-
 
 % Create sample particles
 belX = [rand(2,num_part)*(xmax-xmin)+xmin; 2*pi*(rand(1,num_part)-0.5)];
@@ -58,7 +60,7 @@ plot(landmark(1,:), landmark(2,:),'ks'); % black * shapes
 axis equal;
 axis(2*[xmin xmax ymin ymax]);
 hold on;
-title('Monte Carlo Localization');
+title('Simulation using monte carlo localization');
 
 % create plot handles for ploting
 h_real = plot(X(1),X(2),'bo');    % real robot: blue o
@@ -180,9 +182,9 @@ for tt=1:200
     h_lm.YData = y_detect;
     h_real.XData = X(1);
     h_real.YData = X(2);
-    ht1.String = sprintf('X,Y,TH real:( %2.2f, %2.2f, %4.1f)', X(1),X(2),X(3)*r2d);
-    ht2.String = sprintf('X,Y,TH pre :( %2.2f, %2.2f, %4.1f)', XPre, YPre, THPre);
-    ht3.String = sprintf('num part , iteration :( %d , %d)', num_part,tt);
+    ht1.String = sprintf('Data of real:(X : %2.2f, Y : %2.2f, Th : %4.1f)', X(1),X(2),X(3)*r2d);
+    ht2.String = sprintf('Data of pre: (X : %2.2f, Y : %2.2f, Th : %4.1f)', XPre, YPre, THPre);
+    ht3.String = sprintf('(Num part: %d, Iteration: %d)', num_part,tt);
     drawnow;
     
     pause(0.1);
