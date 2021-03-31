@@ -1,14 +1,14 @@
 clear;
 % load data
-load sample_data.mat % this line will load variable X (robot pose) and z (laser distance and angle)
+load data_vrep.mat % this line will load variable X (robot pose) and z (laser distance and angle)
 % X is 2D with dinemsion 3 x number of sampled data
 % z is 3D with dimension 2 x number of laser rays x number of sampled data
 
 % create space for map
-xmn = min(X(1,:),[],'all') -20; 
-xmx = max(X(1,:),[],'all') + 20;
-ymn = min(X(2,:),[],'all') -20; 
-ymx = max(X(2,:),[],'all') + 20;
+xmn = min(X(1,:),[],2) -20; 
+xmx = max(X(1,:),[],2) + 20;
+ymn = min(X(2,:),[],2) -20; 
+ymx = max(X(2,:),[],2) + 20;
 
 % create grid
 stepx = 1; stepy = 1;
@@ -23,8 +23,8 @@ figure(1); clf; hold on                             % Plot original data points
 h_grid = pcolor(XGrid,YGrid,C);
 h_grid.EdgeColor='none';
 
-%colorMap = [0.9 0.9 0.9; 0 0 0; 1 1 1]; % grey, black, white
-colorMap = gray(20);
+colorMap = [0.9 0.9 0.9; 0 0 0; 1 1 1]; % grey, black, white
+% colorMap = gray(20);
 colormap(colorMap);
 
 % handles for plots
