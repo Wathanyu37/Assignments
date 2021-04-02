@@ -50,7 +50,7 @@ if(clientID>-1)
     
 %    vrep.simxStartSimulation(clientID,vrep.simx_opmode_blocking);
     X = []; z=[];
-    for i=1:600
+    for i=1:1000
         disp(i);
         % get 2D laser data relative to the robot
         [returnCode, data] = vrep.simxGetStringSignal(clientID,'measuredDataAtThisTime',vrep.simx_opmode_buffer);

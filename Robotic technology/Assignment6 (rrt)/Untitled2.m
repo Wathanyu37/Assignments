@@ -204,6 +204,9 @@ function map = init_map(map_source, map_target)
         end
     end
     
+
+    
+    
     map(map_source(1),map_source(2)) = -1;
     map(map_target(1),map_target(2)) = -2;
 end

@@ -42,7 +42,7 @@ h_robothead = quiver(0,0,0,0,'b','LineWidth',1); % real robot heading line
 h_laser = plot(0,0,'g-.','LineWidth',1); % laser
 
 axis equal;
-axis([-50 550 -50 550]);
+axis([-50 450 -50 450]);
 
 xt = get(gca, 'XTick');
 set(gca, 'XTick',xt, 'XTickLabel',xt/100)
@@ -65,42 +65,44 @@ for tt=1:size(z,3)
     
     x_laser = [];
     y_laser = [];
-    B = [];
+%     B = [];
     
     for phi = 1:size(z,2)
         
         sen_dis = z(1,phi,tt); % distance
         sen_ang = z(2,phi,tt); % angle relative to robot
         
-        irx = round((xr-xmn)/stepx);
-        iry = round((yr-ymn)/stepy);
+        % irx = round((xr-xmn)/stepx);
+        % iry = round((yr-ymn)/stepy);
         
         % for laser plotting
        
-        [x0,y0,x1,y1]= find_xy01(xr,yr,thr,sen_dis,sen_ang);
+        [x0,y0,x1,y1]= find_xys2e(xr,yr,thr,sen_dis,sen_ang);
+        
         x1 = round(x1,5);
         y1 = round(y1,5);
         x_laser = [x_laser x0 x1 NaN];
         y_laser = [y_laser y0 y1 NaN];
         
-        [ix, iy] = bresenham(x0,y0,x1,y1);
-        B_L = [ix, iy];
-        x_offset = 459;
-        y_offset = 390; %452
+        B_line = bresenham_line(x0,y0,x1,y1);
         
-        for k = 1:4:size(B_L,1)
-            for i=ix(k)
-                for j=iy(k) 
-                    if ismember([i,j],B_L(1:end-1,:),'rows') == 1
-                        
-                       if C(j+y_offset,i+x_offset) == l_0
-                       C(j+y_offset,i+x_offset) = C(j+y_offset,i+x_offset) + l_free - C(j+y_offset,i+x_offset);%l_0;
-                       end
-                       
-                    elseif ismember([i,j],B_L(end,:),'rows') == 1 
-                       %if C(j+y_offset,i+x_offset) == l_0
-                        C(j+y_offset,i+x_offset) = C(j+y_offset,i+x_offset) + l_occ - C(j+y_offset,i+x_offset);%l_0;
-                       %end
+        
+        
+        x_offset = 450;
+        y_offset = 460; %452
+        
+%         C = update_map(C,B_line,x_offset,y_offset);
+
+
+        for k = 1:2:size(B_line,1)
+            for i = B_line(k,1)
+                for j = B_line(k,2) 
+                    if ([i,j] - B_line(end,:)) == 0
+                       C(j+y_offset,i+x_offset) = 0;
+                       C((j+y_offset)-1,(i+x_offset)-1) = 0;
+                       C((j+y_offset)+1,(i+x_offset)+1) = 0;
+                    else   
+                       C(j+y_offset,i+x_offset) = 1;
                     end
                 end        
             end
@@ -118,8 +120,66 @@ for tt=1:size(z,3)
     
 end
 
+% 
+% function [xs2xe,ys2ye] = find_xys2e(xr, yr, thr, sensor_dis, sensor_ang)
+% 
+%     xs2xe = round([xr,(xr + sensor_dis*cos(thr+sensor_ang))],5);
+%     ys2ye = round([yr,(yr + sensor_dis*sin(thr+sensor_ang))],5);
+%     
+% end
+% 
+% function B_line = bresenham_line(xs2xe,ys2ye)
+% 
+% dx = abs(xs2xe(2) - xs2xe(1));
+% dy = abs(ys2ye(2) - ys2ye(1));
+% 
+% x1 = xs2xe(1);
+% x2 = xs2xe(2);
+% y1 = ys2ye(1);
+% y2 = ys2ye(2);
+% 
+%  if dy>dx 
+%     t=dx;dx=dy;dy=t; 
+% end
+% if dy==0 
+%     q = zeros(dx+1,1);
+% else
+%     q =[0;diff(mod([floor(dx/2):-dy:-dy*dx+floor(dx/2)]',dx))>=0];
+% end
+% 
+% if dy>dx 
+%     
+%     if y1<=y2 
+%         y=[y1:y2]'; 
+%     else
+%         y=[y1:-1:y2]';
+%     end
+%     
+%     if x1<=x2 
+%         x=x1+cumsum(q);
+%     else
+%         x=x1-cumsum(q);
+%     end
+%     
+% else
+%     if x1<=x2 
+%         x=[x1:x2]'; 
+%     else
+%         x=[x1:-1:x2]';
+%     end
+%     
+%     if y1<=y2 
+%         y=y1+cumsum(q);
+%     else
+%         y=y1-cumsum(q); 
+%     end
+% end
+% B_line = [x, y];
+% end
 
-function [x0,y0,x1,y1] = find_xy01(xr, yr, thr, sensor_dis, sensor_ang)
+
+
+function [x0,y0,x1,y1] = find_xys2e(xr, yr, thr, sensor_dis, sensor_ang)
     x0 = xr; 
     y0 = yr;
     x1 = xr + sensor_dis*cos(thr+sensor_ang);
@@ -127,43 +187,71 @@ function [x0,y0,x1,y1] = find_xy01(xr, yr, thr, sensor_dis, sensor_ang)
 end
 
 
-function [x, y]=bresenham(x1,y1,x2,y2)
+
+function B_line = bresenham_line(x1,y1,x2,y2)
+
 x1=round(x1); 
 x2=round(x2);
 y1=round(y1); 
 y2=round(y2);
+
 dx=abs(x2-x1);
 dy=abs(y2-y1);
-steep= abs(dy)>abs(dx);
+steep = abs(dy)>abs(dx);
+
 if steep 
     t=dx;dx=dy;dy=t; 
 end
 if dy==0 
-    q=zeros(dx+1,1);
+    q = zeros(dx+1,1);
 else
-    q=[0;diff(mod([floor(dx/2):-dy:-dy*dx+floor(dx/2)]',dx))>=0];
+    q =[0;diff(mod([floor(dx/2):-dy:-dy*dx+floor(dx/2)]',dx))>=0];
 end
+
 if steep
+    
     if y1<=y2 
         y=[y1:y2]'; 
     else
         y=[y1:-1:y2]';
     end
+    
     if x1<=x2 
         x=x1+cumsum(q);
     else
         x=x1-cumsum(q);
     end
+    
 else
     if x1<=x2 
         x=[x1:x2]'; 
     else
         x=[x1:-1:x2]';
     end
+    
     if y1<=y2 
         y=y1+cumsum(q);
     else
         y=y1-cumsum(q); 
+    end
+end
+B_line = [x, y];
+end
+
+
+function C = update_map(C,B_line,x_offset,y_offset)
+
+for e = 1:2:size(B_line,1)
+    for i = B_line(e,1)
+         for j = B_line(e,2) 
+             if ([i,j] - B_line(end,:)) == 0
+                  C(j+y_offset,i+x_offset) = 0;
+                  C((j+y_offset)-1,(i+x_offset)-1) = 0;
+                  C((j+y_offset)+1,(i+x_offset)+1) = 0;
+             else   
+                  C(j+y_offset,i+x_offset) = 1;
+             end
+         end        
     end
 end
 end
