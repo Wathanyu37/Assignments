@@ -45,7 +45,7 @@ if(clientID>-1)
     h1 = plot(0,0,'b.'); hold on;
     h2 = plot(0,0,'r.');
     h3 = plot(0,0,'k.');
-    h4 = plot(0,0,'c.'); hold off;
+    h4 = plot(0,0,'c.'); %hold off;
     axis equal; axis([-5 5 -5 5]);
     
 %    vrep.simxStartSimulation(clientID,vrep.simx_opmode_blocking);
@@ -90,7 +90,7 @@ if(clientID>-1)
         h1.XData = xdata1;
         h1.YData = ydata1;
 
-        drawnow;
+%         drawnow;
         pause(0.2);
         
         % collect data
@@ -105,7 +105,7 @@ end
 vrep.delete();
 
 % save data to file
-save 'data_vrep.mat' X z 
+save 'data_vrep1.mat' X z 
 
 function [x,y]=rotatez(data, a)
     for i=1:size(data,2)

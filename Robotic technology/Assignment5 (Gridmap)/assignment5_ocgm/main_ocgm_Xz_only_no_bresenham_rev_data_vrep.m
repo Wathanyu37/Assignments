@@ -40,7 +40,8 @@ colormap(colorMap);
 % handles for plots
 h_robot = plot(0,0,'bo','MarkerSize',10, 'LineWidth',1);  %robot body 
 h_robothead = quiver(0,0,0,0,'b','LineWidth',1); % real robot heading line
-h_laser = plot(0,0,'r-.','LineWidth',1); % laser
+% h_laser = plot(0,0,'r-.','LineWidth',1); % laser
+h_laser = plot(0,0,'b.');
 
 axis equal;
 axis([-50 550 -50 550]);
